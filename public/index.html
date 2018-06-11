@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<script>
+
+		let after = "";
+		function getUtil(url, callback) {
+			let xmlhttp;
+
+			xmlhttp = new XMLHttpRequest();
+
+			xmlhttp.onreadystatechange = function() {
+				if(xmlhttp.readyState == 4 && xmlhttp.status === 200) {
+					callback(xmlhttp.responseText)
+				}
+			}
+
+			xmlhttp.open("GET",url, true);
+			xmlhttp.send()
+		}
+
+		function init() {
+			getUtil("https://www.reddit.com/r/javascript.json",(redditData) => {
+				JSON.parse(redditData).data.children.forEach((info) => {
+				 	var article = document.createElement('article');
+				 	after = JSON.parse(redditData).data.after
+					article.innerHTML = "<p>" + info.data.title + "</p>";
+					article.className = "col-md-12 col-xs-12"
+
+					document.getElementById("reddit").append(article);
+				});
+			})
+		}
+				
+		window.onload = init;
+		window.onscroll = function(ev) {
+		    if (((window.innerHeight + window.scrollY) + 5) >= document.body.offsetHeight) {
+		       getUtil("https://www.reddit.com/r/javascript.json?after=" + after,(redditData) => {
+					JSON.parse(redditData).data.children.forEach((info) => {
+					 	var article = document.createElement('article');
+					 	after = JSON.parse(redditData).data.after
+						article.innerHTML = "<p>" + info.data.title + "</p>";
+						article.className = "col-md-12 col-xs-12"
+
+						document.getElementById("reddit").append(article);
+					});
+			})
+		}
+		};
+		</script>
+		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+	</head>
+	<body>
+			<section style="padding : 30px;" id="reddit" class="row">
+			</section>
+	</body>
+</html>
