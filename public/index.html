@@ -18,12 +18,13 @@
 			xmlhttp.send()
 		}
 
-		function showBlogData(data) {
+		function showBlogData(data,url) {
 			let article = document.createElement('article');
 			let contentDetails = data[0].data.children[0].data
 			console.log(contentDetails.title)
-			console.log(contentDetails.ups)
+			console.log(contentDetails.name)
 			article.innerHTML = `<p>Title: ${contentDetails.title}</p> <br>Votes: ${contentDetails.ups}`
+			history.pushState(contentDetails.name, null, url);
 			document.getElementById("blogdata").append(article);
 			document.getElementsByClassName("spinner")[0].style.display = 'none';
 		}
@@ -43,7 +44,7 @@
 						document.getElementsByClassName("spinner")[0].style.display = 'block';
 						getUtil(url,(blogData) => {
 							console.log(blogData)
-							showBlogData(JSON.parse(blogData))
+							showBlogData(JSON.parse(blogData),info.data.permalink)
 						})
 					}
 					article.appendChild(aTag);
