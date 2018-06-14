@@ -18,6 +18,16 @@
 			xmlhttp.send()
 		}
 
+		function showBlogData(data) {
+			let article = document.createElement('article');
+			let contentDetails = data[0].data.children[0].data
+			console.log(contentDetails.title)
+			console.log(contentDetails.ups)
+			article.innerHTML = `<p>Title: ${contentDetails.title}</p> <br>Votes: ${contentDetails.ups}`
+			document.getElementById("blogdata").append(article);
+			document.getElementsByClassName("spinner")[0].style.display = 'none';
+		}
+
 		function init() {
 			getUtil("https://www.reddit.com/r/javascript.json",(redditData) => {
 				JSON.parse(redditData).data.children.forEach((info) => {
@@ -26,11 +36,15 @@
 				 	after = JSON.parse(redditData).data.after
 				 	let url = "https://www.reddit.com" + info.data.permalink + ".json"
 				 	aTag.href = url;
-					// article.innerHTML = `<p><a href='${url}'>${info.data.title}</a></p>`;
 					aTag.innerHTML = info.data.title;
 					aTag.onclick = (e) => {
 						e.preventDefault();
-						console.log(url)
+						document.getElementById("reddit").style.display = 'none';
+						document.getElementsByClassName("spinner")[0].style.display = 'block';
+						getUtil(url,(blogData) => {
+							console.log(blogData)
+							showBlogData(JSON.parse(blogData))
+						})
 					}
 					article.appendChild(aTag);
 					article.className = "col-md-12 col-xs-12"
@@ -58,8 +72,41 @@
 		</script>
 		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
 	</head>
+	<style>
+		.spinner {
+		  width: 40px;
+		  height: 40px;
+		  background-color: #333;
+
+		  margin: 100px auto;
+		  -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
+		  animation: sk-rotateplane 1.2s infinite ease-in-out;
+		}
+
+		@-webkit-keyframes sk-rotateplane {
+		  0% { -webkit-transform: perspective(120px) }
+		  50% { -webkit-transform: perspective(120px) rotateY(180deg) }
+		  100% { -webkit-transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
+		}
+
+		@keyframes sk-rotateplane {
+		  0% { 
+		    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+		    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg) 
+		  } 50% { 
+		    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+		    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg) 
+		  } 100% { 
+		    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+		    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+		  }
+		}
+	</style>
 	<body>
+			<div class="spinner" style="display : none"></div>
 			<section style="padding : 30px;" id="reddit" class="row">
+			</section>
+			<section style="padding : 30px;" id="blogdata" class="row">
 			</section>
 	</body>
 </html>
