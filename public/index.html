@@ -50,12 +50,25 @@
 					article.appendChild(aTag);
 					article.className = "col-md-12 col-xs-12"
 
+					document.getElementById("reddit").style.display = 'block';
 					document.getElementById("reddit").append(article);
 				});
 			})
 		}
 				
 		window.onload = init;
+		window.addEventListener('popstate', function(e) {
+		  // e.state is equal to the data-attribute of the last image we clicked
+		  if(!e.state) {
+		  	init();
+		  	let blogDOM = document.getElementById("blogdata")
+			while (blogDOM.firstChild) {
+			  blogDOM.removeChild(blogDOM.firstChild);
+			}
+		  } else {
+		  	console.log(e.state)
+		  }
+		});
 		window.onscroll = function(ev) {
 		    if (((window.innerHeight + window.scrollY) + 5) >= document.body.offsetHeight) {
 		       getUtil("https://www.reddit.com/r/javascript.json?after=" + after,(redditData) => {
