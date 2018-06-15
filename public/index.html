@@ -22,17 +22,19 @@
 			getUtil("https://www.reddit.com/r/javascript.json",(redditData) => {
 				JSON.parse(redditData).data.children.forEach((info) => {
 				 	var article = document.createElement('article');
-				 	let aTag = document.createElement('a');
+				 	let anchor = document.createElement('a');
 				 	after = JSON.parse(redditData).data.after
 				 	let url = "https://www.reddit.com" + info.data.permalink + ".json"
-				 	aTag.href = url;
-					// article.innerHTML = `<p><a href='${url}'>${info.data.title}</a></p>`;
-					aTag.innerHTML = info.data.title;
-					aTag.onclick = (e) => {
+				 	anchor.href = url;
+					anchor.innerHTML = info.data.title;
+
+
+					anchor.onclick = (e) => {
 						e.preventDefault();
 						console.log(url)
 					}
-					article.appendChild(aTag);
+					article.appendChild(anchor);
+					document.body.appendChild(document.createElement('br'));
 					article.className = "col-md-12 col-xs-12"
 
 					document.getElementById("reddit").append(article);
