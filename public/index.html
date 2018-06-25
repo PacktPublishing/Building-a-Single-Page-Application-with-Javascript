@@ -25,12 +25,41 @@
 			console.log(contentDetails.name)
 			article.innerHTML = `<p>Title: ${contentDetails.title}</p> <br>Votes: ${contentDetails.ups}`
 			history.pushState(contentDetails.name, null, url);
+			let details = {title:contentDetails.title,votes:contentDetails.ups,url:url}
+			localStorage.setItem(contentDetails.name,JSON.stringify(details))
 			document.getElementById("blogdata").append(article);
 			document.getElementsByClassName("spinner")[0].style.display = 'none';
 		}
 
-		function init() {
-			getUtil("https://www.reddit.com/r/javascript.json",(redditData) => {
+		function init(fromStore) {
+			if(!fromStore) {
+				getUtil("https://www.reddit.com/r/javascript.json",(redditData) => {
+					localStorage.setItem("reddit",redditData)
+					JSON.parse(redditData).data.children.forEach((info) => {
+					 	var article = document.createElement('article');
+					 	let aTag = document.createElement('a');
+					 	after = JSON.parse(redditData).data.after
+					 	let url = "https://www.reddit.com" + info.data.permalink + ".json"
+					 	aTag.href = url;
+						aTag.innerHTML = info.data.title;
+						aTag.onclick = (e) => {
+							e.preventDefault();
+							document.getElementById("reddit").style.display = 'none';
+							document.getElementsByClassName("spinner")[0].style.display = 'block';
+							getUtil(url,(blogData) => {
+								console.log(blogData)
+								showBlogData(JSON.parse(blogData),info.data.permalink)
+							})
+						}
+						article.appendChild(aTag);
+						article.className = "col-md-12 col-xs-12"
+
+						document.getElementById("reddit").style.display = 'block';
+						document.getElementById("reddit").append(article);
+					});
+				})
+			} else {
+				let redditData = localStorage.getItem("reddit")
 				JSON.parse(redditData).data.children.forEach((info) => {
 				 	var article = document.createElement('article');
 				 	let aTag = document.createElement('a');
@@ -53,20 +82,31 @@
 					document.getElementById("reddit").style.display = 'block';
 					document.getElementById("reddit").append(article);
 				});
-			})
+			}
 		}
 				
 		window.onload = init;
 		window.addEventListener('popstate', function(e) {
 		  // e.state is equal to the data-attribute of the last image we clicked
 		  if(!e.state) {
-		  	init();
+		  	init(true);
 		  	let blogDOM = document.getElementById("blogdata")
 			while (blogDOM.firstChild) {
 			  blogDOM.removeChild(blogDOM.firstChild);
 			}
 		  } else {
 		  	console.log(e.state)
+		  	let redditData = JSON.parse(localStorage.getItem(e.state))
+		  	console.log(redditData)
+
+		  	document.getElementById("reddit").style.display = 'none';
+			document.getElementsByClassName("spinner")[0].style.display = 'block';
+		  	let article = document.createElement('article');
+			article.innerHTML = `<p>Title: ${redditData.title}</p> <br>Votes: ${redditData.ups}`
+			// history.pushState(redditData.name, null, redditData.url);
+			localStorage.setItem(redditData.name,JSON.stringify(redditData))
+			document.getElementById("blogdata").append(article);
+			document.getElementsByClassName("spinner")[0].style.display = 'none';
 		  }
 		});
 		window.onscroll = function(ev) {
